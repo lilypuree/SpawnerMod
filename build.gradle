@@ -3,7 +3,7 @@ buildscript {
         maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
-        maven {url='https://dist.creeper.host/Sponge/maven'}
+        maven { url = 'https://dist.creeper.host/Sponge/maven' }
 
     }
     dependencies {
@@ -11,10 +11,22 @@ buildscript {
         classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
     }
 }
+
+plugins {
+    // this version works on gradle 4.9
+    // more recent versions of shadow work on more recent versions of gradle
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
+
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'java' // java plugin is needed for the shadow plugin to work
+
 
 version = "${mod_version}"
 group = "com.tfar.${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -38,7 +50,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
-            arg "-mixin.config="+archivesBaseName+".mixins.json"
+            arg "-mixin.config=" + archivesBaseName + ".mixins.json"
 
 
             // Recommended logging level for the console
@@ -53,7 +65,7 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
-            arg "-mixin.config="+archivesBaseName+".mixins.json"
+            arg "-mixin.config=" + archivesBaseName + ".mixins.json"
 
 
             // Recommended logging level for the console
@@ -68,7 +80,7 @@ minecraft {
     }
 }
 
-repositories{
+repositories {
     maven {
         // location of the maven that hosts JEI files
         name = "Progwml6 maven"
@@ -82,6 +94,12 @@ repositories{
     jcenter()
     mavenCentral()
 
+    // java repo to get databuddy from
+    maven { url "https://cubicinterpolation.net/maven/" }
+}
+
+configurations {
+    shade
 }
 
 dependencies {
@@ -90,41 +108,39 @@ dependencies {
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}" //21
 
-    // You may put jars on which you depend on in ./libs or you may define them like so..
-    // compile "some.group:artifact:version:classifier"
-    // compile "some.group:artifact:version"
-
-    // Real examples
-    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
-    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
-
-    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
-    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // These dependencies get remapped to your current MCP mappings
-    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
-
-    // For more info...
-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
-
+    compile fg.deobf("commoble.databuddy:${databuddy_branch}:${databuddy_version}")
+    shade fg.deobf("commoble.databuddy:${databuddy_branch}:${databuddy_version}")
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
 jar {
     manifest {
         attributes([
-                "Specification-Title": "${modid}",
-                "Specification-Vendor": "examplemodsareus",
-                "Specification-Version": "1", // We are version 1 of ourselves
-                "Implementation-Title": project.name,
-                "Implementation-Version": "${version}",
-                "Implementation-Vendor" :"examplemodsareus",
+                "Specification-Title"     : "${modid}",
+                "Specification-Vendor"    : "examplemodsareus",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${version}",
+                "Implementation-Vendor"   : "examplemodsareus",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs": "${modid}.mixins.json"
+                "MixinConfigs"            : "${modid}.mixins.json"
         ])
     }
 }
+
+shadowJar {
+    classifier = ''
+    configurations = [project.configurations.shade]
+    relocate 'commoble.databuddy', "${project.group}.shadow.commoble.databuddy"
+}
+
+reobf {
+    shadowJar {}
+}
+
+// this replaces jar.finalizedBy('reobfJar') in the standard forge mod buildscript
+tasks.build.dependsOn reobfShadowJar
+jar.finalizedBy('reobfShadowJar')
 
 // Example configuration to allow publishing using the maven-publish task
 // we define a custom artifact that is sourced from the reobfJar output task

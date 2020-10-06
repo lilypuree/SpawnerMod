@@ -1,4 +1,4 @@
-package com.example.examplemod.mixin;
+package com.lilypuree.spawnermod.mixin;
 
 import net.minecraft.client.gui.screen.MainMenuScreen;
 import org.spongepowered.asm.mixin.Mixin;
