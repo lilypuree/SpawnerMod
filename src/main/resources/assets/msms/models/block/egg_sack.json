@@ -1,0 +1,6 @@
+{
+  "parent" : "minecraft:block/cube_all",
+  "textures": {
+    "all" : "msms:block/egg_sack"
+  }
+}

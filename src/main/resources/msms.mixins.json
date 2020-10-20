@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.lilypuree.msms.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "msms.refmap.json",
+  "mixins": [
+  ],
+  "client":[
+    "ExampleMixin",
+    "MinecraftServerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

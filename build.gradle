@@ -28,8 +28,8 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java' // java plugin is needed for the shadow plugin to work
 
 
-version = "${mod_version}"
-group = "com.tfar.${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+version = "#${mc_version}-${mod_version}"
+group = "com.lilypuree.${modid}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "${modid}"
 
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
@@ -40,10 +40,10 @@ minecraft {
     // stable_#            Stables are built at the discretion of the MCP team.
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
-    mappings channel: "snapshot", version: "${mapping}-${mcp_version}"
+    mappings channel: "official", version: "${mc_version}"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
-    //accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -93,6 +93,7 @@ repositories {
     }
     jcenter()
     mavenCentral()
+    maven { url = "https://www.cursemaven.com" }
 
     // java repo to get databuddy from
     maven { url "https://cubicinterpolation.net/maven/" }
@@ -107,6 +108,8 @@ dependencies {
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}" //21
+
+//    compile fg.deobf("curse.maven:blame:3076452")
 
     compile fg.deobf("commoble.databuddy:${databuddy_branch}:${databuddy_version}")
     shade fg.deobf("commoble.databuddy:${databuddy_branch}:${databuddy_version}")

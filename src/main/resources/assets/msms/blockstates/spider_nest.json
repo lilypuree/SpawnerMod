@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model" : "msms:block/spider_nest"
+    }
+  }
+}
